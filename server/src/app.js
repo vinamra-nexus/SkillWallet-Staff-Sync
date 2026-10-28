@@ -58,24 +58,25 @@ export function createApp() {
     app.use(morgan('dev'));
   }
 
-  // Global rate limit: 300 req / 15 min / IP (1000 in test)
+  // Global rate limit: 300 req / 15 min / IP in prod (5000 in dev/test)
   app.use(
     rateLimit({
       windowMs: 15 * 60 * 1000,
-      max: env.NODE_ENV === 'test' ? 1000 : 300,
+      max: env.NODE_ENV === 'production' ? 300 : 5000,
       standardHeaders: true,
       legacyHeaders: false,
     })
   );
 
-  // Stricter rate limit on login: 10 / 15 min / IP (100 in test)
+  // Stricter rate limit on login: 10 / 15 min / IP in prod (1000 in dev/test)
   app.use(
     '/api/auth/login',
     rateLimit({
       windowMs: 15 * 60 * 1000,
-      max: env.NODE_ENV === 'test' ? 100 : 10,
+      max: env.NODE_ENV === 'production' ? 10 : 1000,
       standardHeaders: true,
       legacyHeaders: false,
+      message: { message: 'Too many login attempts. Please try again in a few minutes.' },
     })
   );
 
