@@ -25,10 +25,24 @@ const http = axios.create({
   withCredentials: true,
 });
 
-// Attach access token on every request
+let activeRole = localStorage.getItem('staffsync_direct_role') || 'hr';
+
+export function setActiveRole(role) {
+  activeRole = role;
+  if (role) localStorage.setItem('staffsync_direct_role', role);
+}
+
+export function getActiveRole() {
+  return activeRole;
+}
+
+// Attach access token and active role on every request
 http.interceptors.request.use((config) => {
   if (accessToken) {
     config.headers.Authorization = `Bearer ${accessToken}`;
+  }
+  if (activeRole) {
+    config.headers['x-role'] = activeRole;
   }
   return config;
 });
@@ -65,7 +79,7 @@ http.interceptors.response.use(
       } catch (refreshError) {
         processQueue(refreshError, null);
         setAccessToken(null);
-        window.location.href = '/login';
+        // Do not force redirect to login in direct access mode
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;

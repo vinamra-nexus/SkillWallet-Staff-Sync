@@ -1,8 +1,7 @@
 import { useAuth } from '../context/AuthContext.jsx';
 import Forbidden from '../pages/Forbidden.jsx';
 
-export default function RoleRoute({ roles, children }) {
-  const { user } = useAuth();
-  if (!user || !roles.includes(user.role)) return <Forbidden />;
+export default function RoleRoute({ children }) {
+  // Direct access: allow access to all routes across all roles
   return children;
 }

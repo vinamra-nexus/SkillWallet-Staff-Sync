@@ -60,8 +60,7 @@ function LoadingFallback() {
 
 function RootRedirect() {
   const { user } = useAuth();
-  if (!user) return <Navigate to="/login" replace />;
-  if (user.role === 'hr') return <Navigate to="/hr" replace />;
+  if (!user || user.role === 'hr') return <Navigate to="/hr" replace />;
   if (user.role === 'manager') return <Navigate to="/manager" replace />;
   return <Navigate to="/employee" replace />;
 }
@@ -81,9 +80,9 @@ export default function App() {
           <AuthProvider>
             <Suspense fallback={<LoadingFallback />}>
               <Routes>
-                {/* Public Auth Routes */}
+                {/* Direct Access: Redirect login to main dashboard */}
                 <Route element={<AuthLayout />}>
-                  <Route path="/login" element={<Login />} />
+                  <Route path="/login" element={<Navigate to="/hr" replace />} />
                 </Route>
 
                 {/* Force password change or account settings */}

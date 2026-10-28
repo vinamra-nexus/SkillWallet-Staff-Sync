@@ -21,13 +21,18 @@ export async function connectDB() {
         if (!fs.existsSync(dbDir)) {
           fs.mkdirSync(dbDir, { recursive: true });
         }
-        embeddedMongo = await MongoMemoryServer.create({
-          instance: {
-            port: 27017,
-            dbPath: dbDir,
-            storageEngine: 'wiredTiger',
-          },
-        });
+        try {
+          embeddedMongo = await MongoMemoryServer.create({
+            instance: {
+              port: 27017,
+              dbPath: dbDir,
+              storageEngine: 'wiredTiger',
+            },
+          });
+        } catch (mmsErr) {
+          console.warn('⚠️  Persistent dbPath failed, falling back to clean in-memory MongoDB:', mmsErr.message);
+          embeddedMongo = await MongoMemoryServer.create();
+        }
         const uri = embeddedMongo.getUri() + 'staffsync';
         await mongoose.connect(uri);
         console.log(`✅  Embedded MongoDB connected at: ${uri}`);

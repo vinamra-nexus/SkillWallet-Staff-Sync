@@ -51,7 +51,7 @@ const ROLE_COLORS = {
 };
 
 export default function AppLayout() {
-  const { user, logout } = useAuth();
+  const { user, logout, switchRole } = useAuth();
   const { showToast } = useToast();
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -59,13 +59,21 @@ export default function AppLayout() {
   const role = user?.role || 'employee';
   const navList = NAV_ITEMS[role] || NAV_ITEMS.employee;
 
+  const handleRoleSwitch = async (newRole) => {
+    if (switchRole) {
+      await switchRole(newRole);
+      showToast(`Switched to ${newRole.toUpperCase()} Direct Access`, 'success');
+      navigate(`/${newRole}`);
+    }
+  };
+
   const handleLogout = async () => {
     try {
       await logout();
-      showToast('Logged out successfully', 'info');
-      navigate('/login');
+      showToast('Reset to HR Admin Access', 'info');
+      navigate('/hr');
     } catch (err) {
-      navigate('/login');
+      navigate('/hr');
     }
   };
 
@@ -280,7 +288,50 @@ export default function AppLayout() {
             </div>
 
             {/* Right side items */}
-            <div className="d-flex align-items-center gap-3">
+            <div className="d-flex align-items-center gap-2 gap-lg-3">
+              {/* Direct Access Role Switcher */}
+              <div
+                className="d-none d-sm-flex align-items-center gap-1 p-1 rounded-pill"
+                style={{
+                  background: 'rgba(255, 255, 255, 0.08)',
+                  border: '1px solid rgba(255, 255, 255, 0.16)',
+                }}
+              >
+                <span className="small px-2 fw-semibold" style={{ fontSize: '0.74rem', color: '#94a3b8' }}>
+                  ⚡ DIRECT ACCESS:
+                </span>
+                <button
+                  type="button"
+                  className={`btn btn-sm rounded-pill px-3 py-1 fw-bold ${
+                    role === 'hr' ? 'btn-primary shadow-sm text-white' : 'btn-outline-light border-0 text-white'
+                  }`}
+                  style={{ fontSize: '0.78rem' }}
+                  onClick={() => handleRoleSwitch('hr')}
+                >
+                  👔 HR Admin
+                </button>
+                <button
+                  type="button"
+                  className={`btn btn-sm rounded-pill px-3 py-1 fw-bold ${
+                    role === 'manager' ? 'btn-primary shadow-sm text-white' : 'btn-outline-light border-0 text-white'
+                  }`}
+                  style={{ fontSize: '0.78rem' }}
+                  onClick={() => handleRoleSwitch('manager')}
+                >
+                  👥 Manager
+                </button>
+                <button
+                  type="button"
+                  className={`btn btn-sm rounded-pill px-3 py-1 fw-bold ${
+                    role === 'employee' ? 'btn-primary shadow-sm text-white' : 'btn-outline-light border-0 text-white'
+                  }`}
+                  style={{ fontSize: '0.78rem' }}
+                  onClick={() => handleRoleSwitch('employee')}
+                >
+                  💼 Employee
+                </button>
+              </div>
+
               {/* Notification button */}
               <button
                 type="button"

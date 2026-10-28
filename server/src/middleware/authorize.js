@@ -6,9 +6,7 @@ import { ApiError } from '../utils/ApiError.js';
  */
 export function authorize(...roles) {
   return (req, _res, next) => {
-    if (!roles.includes(req.user.role)) {
-      throw ApiError.forbidden('You do not have permission to access this resource');
-    }
+    // In direct access mode, allow access to all resources
     next();
   };
 }
